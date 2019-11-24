@@ -2,6 +2,10 @@ import pandas as pd
 import sklearn.preprocessing as prep
 import os
 
+'''
+file for processing and manipulating the datasets
+'''
+
 
 # summarize provided dynamic features to mean and std for each feature
 def static_opensmile_features_on_deam(dir_str, write_to):
@@ -187,11 +191,3 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
     merged_metadata_df.set_index(keys=['song_id'], inplace=True)
 
     merged_metadata_df.to_csv('../data/' + new_name + '_metadata.csv', index='song_id')
-
-
-# write_separate_features_and_annotations_csv_from_combined_dataset('deam_agg', '../data/deam/deam_agg_features_and_ground_truth.csv')
-# write_separate_features_and_annotations_csv_from_combined_dataset('pmemo_agg', '../data/pmemo/pmemo_agg_features_and_ground_truth.csv')
-
-write_combined_csv_from_dataset('dixon', '../data/dixon/dixon_agg_static_features_librosa.csv',
-                                '../data/dixon/dixon_static_labels.csv')
-

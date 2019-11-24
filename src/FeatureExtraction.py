@@ -10,7 +10,7 @@ file for extracting audio features with the libROSA library
 '''
 
 
-def extract_features(read_from: str, write_to_csv: bool, write_to: str) -> pd.DataFrame:
+def extract_features(read_from: str, write_to_csv: bool, write_to: str, save_images: bool) -> pd.DataFrame:
     feature_set_df = pd.DataFrame()  # feature matrix
 
     # getting a list of mp3 files in the directory, no recursion
@@ -41,73 +41,79 @@ def extract_features(read_from: str, write_to_csv: bool, write_to: str) -> pd.Da
             feature_set_df.loc[song_id, 'avg_beats'] = np.mean(beats)
 
             chroma_stft = librosa.feature.chroma_stft(y, sr)  # chromagram from a waveform or power spectrogram
-            # plt.figure(figsize=(10, 4))
-            # librosa.display.specshow(chroma_stft, y_axis='chroma', x_axis='time')
-            # plt.colorbar()
-            # plt.title('Chromagram')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                librosa.display.specshow(chroma_stft, y_axis='chroma', x_axis='time')
+                plt.colorbar()
+                plt.title('Chromagram')
+                plt.tight_layout()
+                plt.savefig('../data/pics/' + song_id + '_chromagram_stft.png')
 
             chroma_stft_dict = mean_and_stddev_on_multidimensional_feature('chroma_stft', chroma_stft)
             for key in chroma_stft_dict:
                 feature_set_df.loc[song_id, key] = chroma_stft_dict[key]
 
             chroma_cens = librosa.feature.chroma_cens(y, sr)  # the chroma variant “Chroma Energy Normalized” (CENS)
-            # plt.figure(figsize=(10, 4))
-            # librosa.display.specshow(chroma_cens, y_axis='chroma', x_axis='time')
-            # plt.colorbar()
-            # plt.title('Chromagram CENS')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                librosa.display.specshow(chroma_cens, y_axis='chroma', x_axis='time')
+                plt.colorbar()
+                plt.title('Chromagram CENS')
+                plt.tight_layout()
+                plt.savefig('../data/pics/' + song_id + '_chromagram_cens.png')
 
             chroma_cens_dict = mean_and_stddev_on_multidimensional_feature('chroma_stft', chroma_cens)
             for key in chroma_cens_dict:
                 feature_set_df.loc[song_id, key] = chroma_cens_dict[key]
 
             q_chroma = librosa.feature.chroma_cqt(y, sr)  # constant-Q chromagram
-            # plt.figure(figsize=(10, 4))
-            # librosa.display.specshow(q_chroma, y_axis='chroma', x_axis='time')
-            # plt.colorbar()
-            # plt.title('Q-Chromagram ')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                librosa.display.specshow(q_chroma, y_axis='chroma', x_axis='time')
+                plt.colorbar()
+                plt.title('Q-Chromagram ')
+                plt.tight_layout()
+                plt.savefig('../data/pics/' + song_id + '_chromagram_q.png')
 
             q_chroma_dict = mean_and_stddev_on_multidimensional_feature('cons_q_chroma', q_chroma)
             for key in q_chroma_dict:
                 feature_set_df.loc[song_id, key] = q_chroma_dict[key]
 
             melspectrogram = librosa.feature.melspectrogram(y, sr)  # a mel-scaled spectrogram
-            # plt.figure(figsize=(10, 4))
-            # s_dB = librosa.power_to_db(melspectrogram, ref=np.max)
-            # librosa.display.specshow(s_dB, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
-            # plt.colorbar(format='%+2.0f dB')
-            # plt.title('Mel-Frequency Spectrogram')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                s_dB = librosa.power_to_db(melspectrogram, ref=np.max)
+                librosa.display.specshow(s_dB, x_axis='time', y_axis='mel', sr=sr, fmax=8000)
+                plt.colorbar(format='%+2.0f dB')
+                plt.title('Mel-Frequency Spectrogram')
+                plt.tight_layout()
+                plt.savefig('../data/pics' + song_id + '_melspectrogram.png')
 
             melspec_dict = mean_and_stddev_on_multidimensional_feature('melspectrogram', melspectrogram)
             for key in melspec_dict:
                 feature_set_df.loc[song_id, key] = melspec_dict[key]
 
             mfcc = librosa.feature.mfcc(y, sr)  # mel-frequency cepstral coefficients
-            # plt.figure(figsize=(10, 4))
-            # librosa.display.specshow(mfcc, x_axis='time')
-            # plt.colorbar()
-            # plt.title('MFCC')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                librosa.display.specshow(mfcc, x_axis='time')
+                plt.colorbar()
+                plt.title('MFCC')
+                plt.tight_layout()
+                plt.savefig('../data/' + song_id + '_mfcc.png')
 
             mfcc_dict = mean_and_stddev_on_multidimensional_feature('mfcc', mfcc)
             for key in mfcc_dict:
                 feature_set_df.loc[song_id, key] = mfcc_dict[key]
 
             mfcc_delta = librosa.feature.delta(mfcc)
-            # plt.figure(figsize=(10, 4))
-            # librosa.display.specshow(mfcc_delta, x_axis='time')
-            # plt.colorbar()
-            # plt.title('MFCC Delta')
-            # plt.tight_layout()
-            # plt.show()
+            if save_images:
+                plt.figure(figsize=(10, 4))
+                librosa.display.specshow(mfcc_delta, x_axis='time')
+                plt.colorbar()
+                plt.title('MFCC Delta')
+                plt.tight_layout()
+                plt.savefig('../data/pics/' + song_id + '_mfcc_delta.png')
 
             mfcc_delta_dict = mean_and_stddev_on_multidimensional_feature('mfcc_delta', mfcc_delta)
             for key in mfcc_delta_dict:
@@ -168,3 +174,4 @@ def mean_and_stddev_on_multidimensional_feature(feature_name, features):
         agg_features[feature_name + '_' + str(i + 1) + '_std'] = np.std(features[i])
 
     return agg_features
+
