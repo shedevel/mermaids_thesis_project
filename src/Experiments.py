@@ -286,7 +286,7 @@ def dim_to_dim_transfer_experiment(from_data, to_data):
         if write_to_file:
             ground_truth_and_pred_vals_df.to_csv(
                 results_dir + train['name'] + '_' + test['name'] + '_' + scaling_str + '_' + str(
-                    exp_var_ratio * 100) + '_' + str(w) + '_' + reg_name + '_' + date_str + '.csv',
+                    exp_var_ratio) + '_' + str(w) + '_' + reg_name + '_' + date_str + '.csv',
                 index_label='song_id')
     return transfer
 
@@ -345,7 +345,7 @@ def dim_to_cat_transfer_experiment(dim_data, cat_data):
                 output.write(row_string + '\n')
             truth_and_prediction_df.to_csv(
                 results_dir + train['name'] + '_' + test['name'] + '_' + scaling_str + '_' + str(
-                    exp_var_ratio * 100) + '_' + str(w) + '_' + reg_name + '_' + date_str + '.csv',
+                    exp_var_ratio) + '_' + str(w) + '_' + reg_name + '_' + date_str + '.csv',
                 index_label='song_id')
     return transfer
 
@@ -559,8 +559,8 @@ w = False
 main_datasets = ['pmemo_o', 'pmemo', 'deam_o', 'deam']
 replication_main = replication_experiment(main_datasets)
 
-agg_datasets = ['pmemo_agg', 'deam_agg']
-replication_agg = replication_experiment(agg_datasets)
+# agg_datasets = ['pmemo_agg', 'deam_agg']
+# replication_agg = replication_experiment(agg_datasets)
 
 print('*** SCALING AND REDUCTION ***')
 # pca reduction parameters to cross-test with every type of scaling
@@ -570,33 +570,33 @@ exp_var_ratio_max = .95
 main_datasets = ['pmemo', 'deam', 'dixon']
 scale_reduce_main = scaling_and_reduction_experiment(main_datasets)
 
-agg_datasets = ['pmemo_agg', 'deam_agg', 'dixon_agg']
-scale_reduce_agg = scaling_and_reduction_experiment(agg_datasets)
+# agg_datasets = ['pmemo_agg', 'deam_agg', 'dixon_agg']
+# scale_reduce_agg = scaling_and_reduction_experiment(agg_datasets)
 
 bal_datasets = ['pmemobal', 'deambal']
 scale_reduce_bal = scaling_and_reduction_experiment(bal_datasets)
 
-bal_agg_datasets = ['pmemobal_agg', 'deambal_agg']
-scale_reduce_bal_agg = scaling_and_reduction_experiment(bal_agg_datasets)
+# bal_agg_datasets = ['pmemobal_agg', 'deambal_agg']
+# scale_reduce_bal_agg = scaling_and_reduction_experiment(bal_agg_datasets)
 
 print('*** BASELINE ***')
 # pre-transfer baseline with the decided fixed factors regarding regressors, scaling and pca parameters
 list_of_regs = ['Ridge', 'SVRrbf', 'SVRpoly']
 scaling_str = 'robust'
-exp_var_ratio = .85
+exp_var_ratio = .75
 w = False
 
 main_datasets = ['pmemo', 'deam']
 baseline = baseline_regression(main_datasets)
 
-agg_datasets = ['pmemo_agg', 'deam_agg']
-baseline_agg = baseline_regression(agg_datasets)
+# agg_datasets = ['pmemo_agg', 'deam_agg']
+# baseline_agg = baseline_regression(agg_datasets)
 
 bal_datasets = ['pmemobal', 'deambal']
 baseline_bal = baseline_regression(bal_datasets)
 
-bal_agg_datasets = ['pmemobal_agg', 'deambal_agg']
-baseline_list = baseline_regression(bal_agg_datasets)
+# bal_agg_datasets = ['pmemobal_agg', 'deambal_agg']
+# baseline_list = baseline_regression(bal_agg_datasets)
 
 print('*** TRANSFER DIMENSIONAL TO DIMENSIONAL ***')
 # transfer with main datasets (same to same as a baseline, will be overfitted)
@@ -606,10 +606,10 @@ deam_to_deam = dim_to_dim_transfer_experiment(deam, deam)
 deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
 
 # transfer with main datasets with agg features
-pmemo_to_pmemo_agg = dim_to_dim_transfer_experiment(pmemo_agg, pmemo_agg)
-pmemo_to_deam_agg = dim_to_dim_transfer_experiment(pmemo_agg, deam_agg)
-deam_to_deam_agg = dim_to_dim_transfer_experiment(deam_agg, deam_agg)
-deam_to_pmemo_agg = dim_to_dim_transfer_experiment(deam_agg, pmemo_agg)
+# pmemo_to_pmemo_agg = dim_to_dim_transfer_experiment(pmemo_agg, pmemo_agg)
+# pmemo_to_deam_agg = dim_to_dim_transfer_experiment(pmemo_agg, deam_agg)
+# deam_to_deam_agg = dim_to_dim_transfer_experiment(deam_agg, deam_agg)
+# deam_to_pmemo_agg = dim_to_dim_transfer_experiment(deam_agg, pmemo_agg)
 
 # transfer with equal-sized datasets (pmemo and minideam)
 minideam_to_minideam = dim_to_dim_transfer_experiment(minideam, minideam)
@@ -617,9 +617,9 @@ pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo, minideam)
 minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam, pmemo)
 
 # transfer with equal-sized datasets with agg features
-minideam_to_minideam_agg = dim_to_dim_transfer_experiment(minideam_agg, minideam_agg)
-pmemo_to_minideam_agg = dim_to_dim_transfer_experiment(pmemo_agg, minideam_agg)
-minideam_to_pmemo_agg = dim_to_dim_transfer_experiment(minideam_agg, pmemo_agg)
+# minideam_to_minideam_agg = dim_to_dim_transfer_experiment(minideam_agg, minideam_agg)
+# pmemo_to_minideam_agg = dim_to_dim_transfer_experiment(pmemo_agg, minideam_agg)
+# minideam_to_pmemo_agg = dim_to_dim_transfer_experiment(minideam_agg, pmemo_agg)
 
 # transfer with emotion-balanced datasets
 pmemobal_to_pmemobal = dim_to_dim_transfer_experiment(pmemobal, pmemobal)
@@ -628,31 +628,30 @@ deambal_to_deambal = dim_to_dim_transfer_experiment(deambal, deambal)
 deambal_to_pmemo = dim_to_dim_transfer_experiment(deambal, pmemo)
 
 # transfer with emotion-balanced datasets with agg features
-pmemobal_to_pmemobal_agg = dim_to_dim_transfer_experiment(pmemobal_agg, pmemobal_agg)
-pmemobal_to_deam_agg = dim_to_dim_transfer_experiment(pmemobal_agg, deam_agg)
-deambal_to_deambal_agg = dim_to_dim_transfer_experiment(deambal_agg, deambal_agg)
-deambal_to_pmemo_agg = dim_to_dim_transfer_experiment(deambal_agg, pmemo_agg)
+# pmemobal_to_pmemobal_agg = dim_to_dim_transfer_experiment(pmemobal_agg, pmemobal_agg)
+# pmemobal_to_deam_agg = dim_to_dim_transfer_experiment(pmemobal_agg, deam_agg)
+# deambal_to_deambal_agg = dim_to_dim_transfer_experiment(deambal_agg, deambal_agg)
+# deambal_to_pmemo_agg = dim_to_dim_transfer_experiment(deambal_agg, pmemo_agg)
 
 print('*** TRANSFER DIMENSIONAL TO CATEGORICAL ***')
 # predict VA values on categorical dataset by fitting scaler, pca and regressor to a dimensional dataset
-cat_baseline = baseline_classification(['dixon'])
-cat_agg_baseline = baseline_classification(['dixon_agg'])
-
 # main datasets
+cat_baseline = baseline_classification(['dixon'])
 pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo, dixon)
 deam_to_dixon = dim_to_cat_transfer_experiment(deam, dixon)
 
 # agg features
-pmemo_to_dixon_agg = dim_to_cat_transfer_experiment(pmemo_agg, dixon_agg)
-deam_to_dixon_agg = dim_to_cat_transfer_experiment(deam_agg, dixon_agg)
+# cat_agg_baseline = baseline_classification(['dixon_agg'])
+# pmemo_to_dixon_agg = dim_to_cat_transfer_experiment(pmemo_agg, dixon_agg)
+# deam_to_dixon_agg = dim_to_cat_transfer_experiment(deam_agg, dixon_agg)
 
 # pmemo and deam combined into one bigger dataset
 baseline_regression(['pmdeamo', 'pmdeamobal'])
 pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo, dixon)
 
 # agg features
-baseline_regression(['pmdeamo_agg', 'pmdeamobal_agg'])
-pmdeamo_to_dixon_agg = dim_to_cat_transfer_experiment(pmdeamo_agg, dixon_agg)
+# baseline_regression(['pmdeamo_agg', 'pmdeamobal_agg'])
+# pmdeamo_to_dixon_agg = dim_to_cat_transfer_experiment(pmdeamo_agg, dixon_agg)
 
 # balanced dimensional datasets
 pmemobal_to_dixon = dim_to_cat_transfer_experiment(pmemobal, dixon)
@@ -660,6 +659,6 @@ deambal_to_dixon = dim_to_cat_transfer_experiment(deambal, dixon)
 pmdeamobal_to_dixon = dim_to_cat_transfer_experiment(pmdeamobal, dixon)
 
 # agg features
-pmemobal_to_dixon_agg = dim_to_cat_transfer_experiment(pmemobal_agg, dixon_agg)
-deambal_to_dixon_agg = dim_to_cat_transfer_experiment(deambal_agg, dixon_agg)
-pmdeamobal_to_dixon_agg = dim_to_cat_transfer_experiment(pmdeamobal_agg, dixon_agg)
+# pmemobal_to_dixon_agg = dim_to_cat_transfer_experiment(pmemobal_agg, dixon_agg)
+# deambal_to_dixon_agg = dim_to_cat_transfer_experiment(deambal_agg, dixon_agg)
+# pmdeamobal_to_dixon_agg = dim_to_cat_transfer_experiment(pmdeamobal_agg, dixon_agg)
