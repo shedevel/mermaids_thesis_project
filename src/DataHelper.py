@@ -181,13 +181,13 @@ def merge_dimensional_datasets(a_prefix, a_with_anno_csv, b_prefix, b_with_anno_
 
 # merge metadata from two datasets into one
 def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name):
-    metata_a = pd.read_csv(a_metadata_csv)
-    metata_a['song_id'] = a_prefix + metata_a['song_id'].astype(str)
+    metadata_a = pd.read_csv(a_metadata_csv)
+    metadata_a['song_id'] = a_prefix + metadata_a['song_id'].astype(str)
 
     metadata_b = pd.read_csv(b_metadata_csv)
     metadata_b['song_id'] = b_prefix + metadata_b['song_id'].astype(str)
 
-    merged_metadata_df = metata_a.append(metadata_b)
+    merged_metadata_df = metadata_a.append(metadata_b)
     merged_metadata_df.set_index(keys=['song_id'], inplace=True)
 
     merged_metadata_df.to_csv('../data/' + new_name + '_metadata.csv', index='song_id')
