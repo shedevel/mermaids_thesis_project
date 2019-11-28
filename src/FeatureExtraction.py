@@ -10,7 +10,75 @@ file for extracting audio features with the libROSA library
 '''
 
 
-def extract_features(read_from: str, write_to_csv: bool, write_to: str, save_images: bool) -> pd.DataFrame:
+# extract features and calculate mean, std and var of each feature (some will be summarized a lot!)
+def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write_to: str) -> pd.DataFrame:
+    feature_names = ['tempo', 'total_beats', 'avg_beats', 'chroma_stft', 'chroma_cq', 'chroma_cens', 'melspectrogram',
+                     'mfcc', 'mfcc_delta', 'rms', 'centroid', 'spectral_bw', 'contrast', 'flatness', 'rolloff', 'poly',
+                     'tonnetz', 'zcr']
+
+    feature_set = pd.DataFrame()  # feature matrix
+
+    # getting a list of mp3 files in the directory, no recursion
+    files = librosa.util.find_files(read_from, 'mp3', False)
+
+    if 'dixon' in read_from:
+        pattern = "(\d+)_"
+    else:
+        pattern = "(\d+).mp3"
+
+    features = dict()
+    # traversing all files and extracting features
+    for line in files:
+        song_id = re.search(pattern, line).group(1)
+        print('Extracting features from ' + song_id)
+
+        # loading the audio file to a time-series with default sampling rate of 22050 Hz
+        y, sr = librosa.load(line, mono=True)
+
+        # extracting selected features from the libROSA library
+        tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
+        features['tempo'] = tempo
+        features['total_beats'] = beats
+
+        features['chroma_stft'] = librosa.feature.chroma_stft(y, sr)  # chromagram from a waveform or power spectrogram
+        features['chroma_cq'] = librosa.feature.chroma_cqt(y, sr)  # constant-Q chromagram
+        features['chroma_cens'] = librosa.feature.chroma_cens(y, sr)  # the chroma variant “Chroma Energy Normalized” (CENS)
+
+        features['melspectrogram'] = librosa.feature.melspectrogram(y, sr)  # a mel-scaled spectrogram
+        features['mfcc'] = librosa.feature.mfcc(y, sr)  # mel-frequency cepstral coefficients
+        features['mfcc_delta'] = librosa.feature.delta(features['mfcc'])
+
+        features['rms'] = librosa.feature.rms(y)  # root mean square energy
+
+        features['centroid'] = librosa.feature.spectral_centroid(y, sr)  # spectral centroid
+        features['spectral_bw'] = librosa.feature.spectral_bandwidth(y, sr)  # spectral bandwidth
+        features['contrast'] = librosa.feature.spectral_contrast(y, sr)  # spectral contrast
+        features['flatness'] = librosa.feature.spectral_flatness(y)  # spectral flatness
+        features['rolloff'] = librosa.feature.spectral_rolloff(y, sr)  # spectral roll-off
+
+        features['poly'] = librosa.feature.poly_features(y, sr)  # coefficients of fitting an nth-order polynomial to the columns of a spectrogram
+        features['tonnetz'] = librosa.feature.tonnetz(y, sr)  # the tonal centroid features (tonnetz)
+        features['zcr'] = librosa.feature.zero_crossing_rate(y)  # zero crossing rate
+
+        # adding mean and stddev values to dataframe
+        for name in feature_names:
+            if name is 'tempo':
+                feature_set.loc[song_id, 'tempo'] = features[name]
+            elif name is 'total_beats':
+                feature_set.loc[song_id, 'total_beats'] = sum(features[name])
+            elif name is 'avg_beats':
+                feature_set.loc[song_id, 'avg_beats'] = np.mean(features['total_beats'])
+            else:
+                feature_set.loc[song_id, name + '_mean'] = np.mean(features[name])
+                feature_set.loc[song_id, name + '_std'] = np.std(features[name])
+
+    if write_to_csv:
+        feature_set.to_csv(write_to, index_label='song_id')
+
+    return feature_set
+
+
+def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, save_images: bool) -> pd.DataFrame:
     feature_set_df = pd.DataFrame()  # feature matrix
 
     # getting a list of mp3 files in the directory, no recursion
@@ -25,17 +93,19 @@ def extract_features(read_from: str, write_to_csv: bool, write_to: str, save_ima
     for line in files:
         song_id = re.search(pattern, line).group(1)
 
-        # reading the file, and the original sampling rate (for info purposes only), before resampling to 22050 Hz
-        y, sr = librosa.load(line, sr=None, mono=True)
-        new_sr = 22050
-        y = librosa.core.resample(y=y, orig_sr=sr, target_sr=new_sr)
-        song_length = librosa.core.get_duration(y)
+        # reading the file with original sampling rate for info
+        y, orig_sr = librosa.load(line, sr=None, mono=True)
+        song_length = librosa.core.get_duration(y, orig_sr)
 
         # only extract features from songs that are less than 90 seconds long
         if song_length <= 90.0:
-            print('Extracting features from ' + song_id + ', ' + str(sr) + ', ' + str(new_sr))
-            tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
+            print('Extracting features from ' + song_id)
 
+            # resampling to 22050 hz (librosa default)
+            sr = 22050
+            y = librosa.core.resample(y=y, orig_sr=orig_sr, target_sr=sr)
+
+            tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
             feature_set_df.loc[song_id, 'tempo'] = tempo
             feature_set_df.loc[song_id, 'total_beats'] = sum(beats)
             feature_set_df.loc[song_id, 'avg_beats'] = np.mean(beats)
