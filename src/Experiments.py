@@ -542,17 +542,20 @@ ground_truth_cols_dict = {'valence': ['song_id', 'valence'],
 DATASETS = {
     'pmemo_o': pmemo_o,
     'pmemo': pmemo,
+    'pmemo_beat': pmemo_beat,
     'pmemo_agg': pmemo_agg,
     'pmemobal': pmemobal,
     'pmemobal_agg': pmemobal_agg,
     'deam_o': deam_o,
     'deam': deam,
+    'deam_beat': deam_beat,
     'deam_agg': deam_agg,
     'deambal': deambal,
     'deambal_agg': deambal_agg,
     'minideam': minideam,
     'minideam_agg': minideam_agg,
     'dixon': dixon,
+    'dixon_beat': dixon_beat,
     'dixon_agg': dixon_agg,
     'pmdeamo': pmdeamo,
     'pmdeamo_agg': pmdeamo_agg,
@@ -573,28 +576,28 @@ initial_exp_var_ratio = None
 initial_w = False
 
 # replication used for code verification and feature extraction comparison, and initial baseline
-# main_datasets = ['pmemo_o', 'pmemo', 'deam_o', 'deam']
-# replication_main = replication_experiment(main_datasets)
-#
-# agg_datasets = ['pmemo_agg', 'deam_agg']
-# replication_agg = replication_experiment(agg_datasets)
+main_datasets = ['pmemo_o', 'pmemo', 'deam_o', 'deam']
+replication_main = replication_experiment(main_datasets)
+
+agg_datasets = ['pmemo_agg', 'deam_agg']
+replication_agg = replication_experiment(agg_datasets)
 
 print('*** SCALING AND REDUCTION ***')
 # pca reduction parameters to cross-test with every type of scaling
 exp_var_ratio_min = .25
 exp_var_ratio_max = .95
 
-# main_datasets = ['pmemo', 'deam', 'dixon']
-# scale_reduce_main = scaling_and_reduction_experiment(main_datasets)
-#
-# datasets_agg = ['pmemo_agg', 'deam_agg', 'dixon_agg']
-# scale_reduce_agg = scaling_and_reduction_experiment(datasets_agg)
-#
-# bal_datasets = ['pmemobal', 'deambal']
-# scale_reduce_bal = scaling_and_reduction_experiment(bal_datasets)
-#
-# bal_datasets_agg = ['pmemobal_agg', 'deambal_agg']
-# scale_reduce_bal_agg = scaling_and_reduction_experiment(bal_datasets_agg)
+main_datasets = ['pmemo', 'deam', 'dixon']
+scale_reduce_main = scaling_and_reduction_experiment(main_datasets)
+
+datasets_agg = ['pmemo_agg', 'deam_agg', 'dixon_agg']
+scale_reduce_agg = scaling_and_reduction_experiment(datasets_agg)
+
+bal_datasets = ['pmemobal', 'deambal']
+scale_reduce_bal = scaling_and_reduction_experiment(bal_datasets)
+
+bal_datasets_agg = ['pmemobal_agg', 'deambal_agg']
+scale_reduce_bal_agg = scaling_and_reduction_experiment(bal_datasets_agg)
 
 print('*** BASELINE & TRANSFER - FINAL PARAMETERS ***')
 # pre-transfer baseline with the decided fixed factors scaling and pca parameters
@@ -612,6 +615,12 @@ pmemo_to_pmemo = dim_to_dim_transfer_experiment(pmemo, pmemo)
 pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo, deam)
 deam_to_deam = dim_to_dim_transfer_experiment(deam, deam)
 deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
+
+beat_datasets = ['pmemo_beat', 'deam_beat']
+pmemobeat_to_pmemobeat = dim_to_dim_transfer_experiment(pmemo_beat, pmemo_beat)
+pmemobeat_to_deambeat = dim_to_dim_transfer_experiment(pmemo_beat, deam_beat)
+deambeat_to_deambeat = dim_to_dim_transfer_experiment(deam_beat, deam_beat)
+deambeat_to_pmemobeat = dim_to_dim_transfer_experiment(deam_beat, pmemo_beat)
 
 # baseline & transfer with main datasets with agg features
 datasets_agg = ['pmemo_agg', 'deam_agg']

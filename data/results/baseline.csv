@@ -1751,3 +1751,7 @@ arousal,pmdeamobal_agg,librosa,robust,0.75,True,SVRpoly,rmse,0.148,2019-11-30_19
 arousal,pmdeamobal_agg,librosa,robust,0.75,True,SVRlin,rmse,0.148,2019-11-30_19-33-25
 arousal,pmdeamobal_agg,librosa,robust,0.75,True,DecTree,rmse,0.158,2019-11-30_19-33-25
 arousal,pmdeamobal_agg,librosa,robust,0.75,True,RandFor,rmse,0.148,2019-11-30_19-33-25
+valence,pmemo,librosa,robust,0.75,True,Ridge,rmse,0.123,2019-12-02_12-46-50
+arousal,pmemo,librosa,robust,0.75,True,Ridge,rmse,0.110,2019-12-02_12-46-50
+valence,deam,librosa,robust,0.75,True,Ridge,rmse,0.140,2019-12-02_12-46-50
+arousal,deam,librosa,robust,0.75,True,Ridge,rmse,0.159,2019-12-02_12-46-50
