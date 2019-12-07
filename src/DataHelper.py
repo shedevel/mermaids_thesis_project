@@ -110,17 +110,17 @@ def _combine_dim_dataset(features_csv_str, annotations_csv_str):
 # angry = v <= 0.5, a > 0.5, happy = v > 0.5, a >= 0.5, relax = v >= 0.5, a < 0.5, sad = v < 0.5, a <= 0.5
 def _add_labels_to_dim_dataset(dim_dataset_df):
     for song in dim_dataset_df.index.values:
-        if dim_dataset_df.at[song, 'valence'] <= 0.5:
-            if dim_dataset_df.at[song, 'arousal'] > 0.5:
-                dim_dataset_df.at[song, 'label'] = 'angry'
-            else:
-                dim_dataset_df.at[song, 'label'] = 'sad'
-        else:
-            if dim_dataset_df.at[song, 'arousal'] >= 0.5:
-                dim_dataset_df.at[song, 'label'] = 'happy'
-            else:
-                dim_dataset_df.at[song, 'label'] = 'relax'
+        v = dim_dataset_df.at[song, 'valence']
+        a = dim_dataset_df.at[song, 'arousal']
 
+        if (v <= 0.5) & (a > 0.5):
+            dim_dataset_df[song, 'label'] = 'angry'
+        elif (v > 0.5) & (a >= 0.5):
+            dim_dataset_df[song, 'label'] = 'happy'
+        elif (v >= 0.5) & (a < 0.5):
+            dim_dataset_df[song, 'label'] = 'relax'
+        else:
+            dim_dataset_df[song, 'label'] = 'sad'
     return dim_dataset_df
 
 
@@ -129,7 +129,7 @@ def write_balanced_subset_from_dataset(name, features_with_anno_csv):
     data_df = pd.read_csv(features_with_anno_csv, index_col=0)
     emo_balanced_df = _create_emotion_balanced_subset_of_dim_dataset(data_df)
 
-    write_to_str = '../data/' + name + '/' + name + 'bal_features_and_ground_truth.csv'
+    write_to_str = '../data/' + name + '/bal_' + name + '_features_and_ground_truth.csv'
     emo_balanced_df.to_csv(write_to_str, index_label='song_id')
 
 
@@ -191,3 +191,12 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
     merged_metadata_df.set_index(keys=['song_id'], inplace=True)
 
     merged_metadata_df.to_csv('../data/' + new_name + '_metadata.csv', index='song_id')
+
+
+write_combined_csv_from_dataset('deam',
+                                '../data/deam/deam_full_features_librosa.csv',
+                                '../data/deam/deam_annotations.csv')
+
+write_combined_csv_from_dataset('deam_agg',
+                                '../data/deam/deam_agg_features_librosa.csv',
+                                '../')

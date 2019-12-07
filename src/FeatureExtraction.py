@@ -12,7 +12,7 @@ file for extracting audio features with the libROSA library
 
 # extract features and calculate mean, std and var of each feature (some will be summarized a lot!)
 def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write_to: str) -> pd.DataFrame:
-    feature_names = ['tempo', 'total_beats', 'avg_beats', 'chroma_stft', 'chroma_cq', 'chroma_cens', 'melspectrogram',
+    feature_names = ['tempo', 'beats_total', 'beats_avg', 'chroma_stft', 'chroma_cq', 'chroma_cens', 'melspectrogram',
                      'mfcc', 'mfcc_delta', 'rms', 'centroid', 'spectral_bw', 'contrast', 'flatness', 'rolloff', 'poly',
                      'tonnetz', 'zcr']
 
@@ -38,7 +38,7 @@ def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write
         # extracting selected features from the libROSA library
         tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
         features['tempo'] = tempo
-        features['total_beats'] = beats
+        features['beats_total'] = beats
 
         features['chroma_stft'] = librosa.feature.chroma_stft(y, sr)  # chromagram from a waveform or power spectrogram
         features['chroma_cq'] = librosa.feature.chroma_cqt(y, sr)  # constant-Q chromagram
@@ -64,10 +64,10 @@ def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write
         for name in feature_names:
             if name is 'tempo':
                 feature_set.loc[song_id, 'tempo'] = features[name]
-            elif name is 'total_beats':
-                feature_set.loc[song_id, 'total_beats'] = sum(features[name])
-            elif name is 'avg_beats':
-                feature_set.loc[song_id, 'avg_beats'] = np.mean(features['total_beats'])
+            elif name is 'beats_total':
+                feature_set.loc[song_id, 'beats_total'] = sum(features[name])
+            elif name is 'beats_avg':
+                feature_set.loc[song_id, 'beats_avg'] = np.mean(features['total_beats'])
             else:
                 feature_set.loc[song_id, name + '_mean'] = np.mean(features[name])
                 feature_set.loc[song_id, name + '_std'] = np.std(features[name])
@@ -107,8 +107,8 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
 
             tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
             feature_set_df.loc[song_id, 'tempo'] = tempo
-            feature_set_df.loc[song_id, 'total_beats'] = sum(beats)
-            feature_set_df.loc[song_id, 'avg_beats'] = np.mean(beats)
+            feature_set_df.loc[song_id, 'beats_total'] = sum(beats)
+            feature_set_df.loc[song_id, 'beats_avg'] = np.mean(beats)
 
             chroma_stft = librosa.feature.chroma_stft(y, sr)  # chromagram from a waveform or power spectrogram
             if save_images:
