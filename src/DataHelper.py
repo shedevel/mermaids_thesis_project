@@ -8,7 +8,7 @@ file for processing and manipulating the datasets
 
 
 # summarize provided dynamic features to mean and std for each feature
-def static_opensmile_features_on_deam(dir_str, write_to):
+def create_static_features_from_dynamic_features(dir_str, write_to):
     mean_of_features = pd.DataFrame()
     std_of_features = pd.DataFrame()
 
@@ -88,7 +88,7 @@ def rename_files_and_write_csv(path_to_audio_files, write_meta_csv, write_label_
 
 
 # combine features, annotation and assigned labels and write to csv
-def write_combined_csv_from_dataset(name, feat_csv, anno_csv):
+def write_combined_csv_from_dim_dataset(name, feat_csv, anno_csv):
     dimset_df = _combine_dim_dataset(feat_csv, anno_csv)
     dimset_with_labels_df = _add_labels_to_dim_dataset(dimset_df)
 
@@ -114,13 +114,13 @@ def _add_labels_to_dim_dataset(dim_dataset_df):
         a = dim_dataset_df.at[song, 'arousal']
 
         if (v <= 0.5) & (a > 0.5):
-            dim_dataset_df[song, 'label'] = 'angry'
+            dim_dataset_df.at[song, 'label'] = 'angry'
         elif (v > 0.5) & (a >= 0.5):
-            dim_dataset_df[song, 'label'] = 'happy'
+            dim_dataset_df.at[song, 'label'] = 'happy'
         elif (v >= 0.5) & (a < 0.5):
-            dim_dataset_df[song, 'label'] = 'relax'
+            dim_dataset_df.at[song, 'label'] = 'relax'
         else:
-            dim_dataset_df[song, 'label'] = 'sad'
+            dim_dataset_df.at[song, 'label'] = 'sad'
     return dim_dataset_df
 
 
@@ -129,7 +129,7 @@ def write_balanced_subset_from_dataset(name, features_with_anno_csv):
     data_df = pd.read_csv(features_with_anno_csv, index_col=0)
     emo_balanced_df = _create_emotion_balanced_subset_of_dim_dataset(data_df)
 
-    write_to_str = '../data/' + name + '/bal_' + name + '_features_and_ground_truth.csv'
+    write_to_str = '../data/bal_' + name + '_features_and_ground_truth.csv'
     emo_balanced_df.to_csv(write_to_str, index_label='song_id')
 
 
@@ -158,25 +158,29 @@ def write_separate_features_and_annotations_csv_from_combined_dataset(name, data
     features = dataset[dataset.columns[:-3]]
     annotations = dataset[dataset.columns[-3:]]
 
-    features.to_csv('../data/' + name + '_static_features_librosa.csv')
-    annotations.to_csv('../data/' + name + '_static_annotations.csv')
+    features.to_csv('../data/' + name + '_features_librosa.csv')
+    annotations.to_csv('../data/' + name + '_annotations.csv')
 
 
 # combine two dimensional datasets into one
 def merge_dimensional_datasets(a_prefix, a_with_anno_csv, b_prefix, b_with_anno_csv, new_name):
     dataset_a_df = pd.read_csv(a_with_anno_csv)
     dataset_a_df['song_id'] = a_prefix + dataset_a_df['song_id'].astype(str)
+    print(dataset_a_df.head(20))
 
     dataset_b_df = pd.read_csv(b_with_anno_csv)
     dataset_b_df['song_id'] = b_prefix + dataset_b_df['song_id'].astype(str)
+    print(dataset_b_df.head(20))
 
     merged_datasets_df = dataset_a_df.append(dataset_b_df)
+    print(merged_datasets_df.head(20))
     merged_datasets_df.set_index(keys=['song_id'], inplace=True)
+    print(merged_datasets_df.head(20))
 
     features_df = merged_datasets_df[merged_datasets_df.columns[:-3]]
-    features_df.to_csv('../data/' + new_name + '_static_features_librosa.csv', index='song_id')
+    features_df.to_csv('../data/' + new_name + '_features_librosa.csv', index='song_id')
     annotations_df = merged_datasets_df[merged_datasets_df.columns[-3:]]
-    annotations_df.to_csv('../data/' + new_name + '_static_annotations.csv', index='song_id')
+    annotations_df.to_csv('../data/' + new_name + '_annotations.csv', index='song_id')
 
 
 # merge metadata from two datasets into one
@@ -193,10 +197,66 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
     merged_metadata_df.to_csv('../data/' + new_name + '_metadata.csv', index='song_id')
 
 
-write_combined_csv_from_dataset('deam',
-                                '../data/deam/deam_full_features_librosa.csv',
-                                '../data/deam/deam_annotations.csv')
+# write_combined_csv_from_dim_dataset('deam',
+#                                     '../data/deam/deam_full_features_librosa.csv',
+#                                     '../data/deam/deam_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('deam_agg',
+#                                     '../data/deam/deam_agg_features_librosa.csv',
+#                                     '../data/deam/deam_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('minideam',
+#                                     '../data/minideam/minideam_full_features_librosa.csv',
+#                                     '../data/minideam/minideam_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('minideam_agg',
+#                                     '../data/minideam/minideam_agg_features_librosa.csv',
+#                                     '../data/minideam/minideam_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('pmemo',
+#                                     '../data/pmemo/pmemo_full_features_librosa.csv',
+#                                     '../data/pmemo/pmemo_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('pmemo_agg',
+#                                     '../data/pmemo/pmemo_agg_features_librosa.csv',
+#                                     '../data/pmemo/pmemo_annotations.csv')
+#
+# merge_dimensional_datasets('p', '../data/pmemo_features_and_ground_truth.csv',
+#                            'd', '../data/deam_features_and_ground_truth.csv',
+#                            'pmdeamo')
+#
+# merge_metadata('p', '../data/pmemo/pmemo_metadata.csv',
+#                'd', '../data/deam/deam_metadata.csv',
+#                'pmdeamo')
+#
+# merge_dimensional_datasets('p', '../data/pmemo_agg_features_and_ground_truth.csv',
+#                            'd', '../data/deam_agg_features_and_ground_truth.csv',
+#                            'pmdeamo_agg')
+#
+# write_combined_csv_from_dim_dataset('pmdeamo',
+#                                     '../data/pmdeamo_full_features_librosa.csv',
+#                                     '../data/pmdeamo_annotations.csv')
+#
+# write_combined_csv_from_dim_dataset('pmdeamo_agg',
+#                                     '../data/pmdeamo_agg_features_librosa.csv',
+#                                     '../data/pmdeamo_agg_annotations.csv')
+#
+# write_balanced_subset_from_dataset('deam', '../data/deam_features_and_ground_truth.csv')
+# write_balanced_subset_from_dataset('deam_agg', '../data/deam_agg_features_and_ground_truth.csv')
+#
+# write_balanced_subset_from_dataset('pmemo', '../data/pmemo_features_and_ground_truth.csv')
+# write_balanced_subset_from_dataset('pmemo_agg', '../data/pmemo_agg_features_and_ground_truth.csv')
+#
+# write_balanced_subset_from_dataset('pmdeamo', '../data/pmdeamo_features_and_ground_truth.csv')
+# write_balanced_subset_from_dataset('pmdeamo_agg', '../data/pmdeamo_agg_features_and_ground_truth.csv')
 
-write_combined_csv_from_dataset('deam_agg',
-                                '../data/deam/deam_agg_features_librosa.csv',
-                                '../')
+# write_separate_features_and_annotations_csv_from_combined_dataset('deam_agg', '../data/deam/deam_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_deam', '../data/deam/bal_deam_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_deam_agg', '../data/deam/bal_deam_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('pmemo_agg', '../data/pmemo/pmemo_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmemo', '../data/pmemo/bal_pmemo_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmemo_agg', '../data/pmemo/bal_pmemo_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('pmdeamo_agg', '../data/pmdeamo/pmdeamo_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmdeamo', '../data/pmdeamo/bal_pmdeamo_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmdeamo_agg', '../data/pmdeamo/bal_pmdeamo_agg_features_and_ground_truth.csv')
+#write_separate_features_and_annotations_csv_from_combined_dataset('minideam_agg', '../data/minideam/minideam_agg_features_and_ground_truth.csv')

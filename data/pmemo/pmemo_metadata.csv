@@ -1,4 +1,4 @@
-song_id,artist,track,artist_genre,sub_artist_genre
+song_id,artist,track,genre,sub_artist_genre
 1,2 Chainz+Gucci Mane+Quavo,Good Drank (Explicit),hip-hop/rap,
 4,21 Savage+Metro Boomin+Future,X Bitch (feat. Future),hip-hop/rap,
 5,21 Savage+Metro Boomin,No Heart,hip-hop/rap,

@@ -1,4 +1,4 @@
-song_id,artist,track,raw_genre,segment_start,segment_end,clean_genre
+song_id,artist,track,raw_genre,segment_start,segment_end,genre
 2,The New Mystikal Troubadours,Tonight  A Lonely Century,blues,0.48,1.33,blues
 3,Kevin MacLeod,DD Groove,blues,0.36,1.21,blues
 4,Kevin MacLeod,Slow Burn,blues,1.29,2.14,blues
