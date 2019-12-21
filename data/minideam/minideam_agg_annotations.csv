@@ -1,4 +1,4 @@
-song_id,valence,arousal,label
+song_id,valence,arousal,quadrant
 2,0.2625,0.25,sad
 8,0.275,0.475,sad
 10,0.375,0.4625,sad

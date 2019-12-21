@@ -10,7 +10,7 @@ file for extracting audio features with the libROSA library
 '''
 
 
-# extract features and calculate mean, std and var of each feature (some will be summarized a lot!)
+# extract features and summarize each to static features (mean and std over frames) (some will be summarized a lot!)
 def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write_to: str) -> pd.DataFrame:
     feature_names = ['tempo', 'beats_total', 'beats_avg', 'chroma_stft', 'chroma_cq', 'chroma_cens', 'melspectrogram',
                      'mfcc', 'mfcc_delta', 'rms', 'centroid', 'spectral_bw', 'contrast', 'flatness', 'rolloff', 'poly',
@@ -78,6 +78,7 @@ def extract_highly_aggregated_features(read_from: str, write_to_csv: bool, write
     return feature_set
 
 
+# extract features and summarize each to static features (mean and std over frames)
 def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, save_images: bool) -> pd.DataFrame:
     feature_set_df = pd.DataFrame()  # feature matrix
 
@@ -117,7 +118,7 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
                 plt.colorbar()
                 plt.title('Chromagram')
                 plt.tight_layout()
-                plt.savefig('../data/pics/' + song_id + '_chromagram_stft.png')
+                plt.savefig('../data/images/' + song_id + '_chromagram_stft.png')
 
             chroma_stft_dict = mean_and_stddev_on_multidimensional_feature('chroma_stft', chroma_stft)
             for key in chroma_stft_dict:
@@ -130,9 +131,9 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
                 plt.colorbar()
                 plt.title('Chromagram CENS')
                 plt.tight_layout()
-                plt.savefig('../data/pics/' + song_id + '_chromagram_cens.png')
+                plt.savefig('../data/images/' + song_id + '_chromagram_cens.png')
 
-            chroma_cens_dict = mean_and_stddev_on_multidimensional_feature('chroma_stft', chroma_cens)
+            chroma_cens_dict = mean_and_stddev_on_multidimensional_feature('chroma_cens', chroma_cens)
             for key in chroma_cens_dict:
                 feature_set_df.loc[song_id, key] = chroma_cens_dict[key]
 
@@ -143,7 +144,7 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
                 plt.colorbar()
                 plt.title('Q-Chromagram ')
                 plt.tight_layout()
-                plt.savefig('../data/pics/' + song_id + '_chromagram_q.png')
+                plt.savefig('../data/images/' + song_id + '_chromagram_q.png')
 
             q_chroma_dict = mean_and_stddev_on_multidimensional_feature('cons_q_chroma', q_chroma)
             for key in q_chroma_dict:
@@ -157,7 +158,7 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
                 plt.colorbar(format='%+2.0f dB')
                 plt.title('Mel-Frequency Spectrogram')
                 plt.tight_layout()
-                plt.savefig('../data/pics' + song_id + '_melspectrogram.png')
+                plt.savefig('../data/images' + song_id + '_melspectrogram.png')
 
             melspec_dict = mean_and_stddev_on_multidimensional_feature('melspectrogram', melspectrogram)
             for key in melspec_dict:
@@ -183,7 +184,7 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
                 plt.colorbar()
                 plt.title('MFCC Delta')
                 plt.tight_layout()
-                plt.savefig('../data/pics/' + song_id + '_mfcc_delta.png')
+                plt.savefig('../data/images/' + song_id + '_mfcc_delta.png')
 
             mfcc_delta_dict = mean_and_stddev_on_multidimensional_feature('mfcc_delta', mfcc_delta)
             for key in mfcc_delta_dict:
@@ -244,4 +245,3 @@ def mean_and_stddev_on_multidimensional_feature(feature_name, features):
         agg_features[feature_name + '_' + str(i + 1) + '_std'] = np.std(features[i])
 
     return agg_features
-

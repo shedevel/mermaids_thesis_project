@@ -221,10 +221,10 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
 #                                     '../data/pmemo/pmemo_agg_features_librosa.csv',
 #                                     '../data/pmemo/pmemo_annotations.csv')
 #
-# merge_dimensional_datasets('p', '../data/pmemo_features_and_ground_truth.csv',
-#                            'd', '../data/deam_features_and_ground_truth.csv',
-#                            'pmdeamo')
-#
+# merge_dimensional_datasets('p', '../data/pmemo/pmemo_features_and_ground_truth.csv',
+#                           'd', '../data/deam/deam_features_and_ground_truth.csv',
+#                           'pmdeamo')
+
 # merge_metadata('p', '../data/pmemo/pmemo_metadata.csv',
 #                'd', '../data/deam/deam_metadata.csv',
 #                'pmdeamo')
@@ -234,8 +234,8 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
 #                            'pmdeamo_agg')
 #
 # write_combined_csv_from_dim_dataset('pmdeamo',
-#                                     '../data/pmdeamo_full_features_librosa.csv',
-#                                     '../data/pmdeamo_annotations.csv')
+#                                    '../data/pmdeamo/pmdeamo_features_librosa.csv',
+#                                    '../data/pmdeamo/pmdeamo_annotations.csv')
 #
 # write_combined_csv_from_dim_dataset('pmdeamo_agg',
 #                                     '../data/pmdeamo_agg_features_librosa.csv',
@@ -247,16 +247,26 @@ def merge_metadata(a_prefix, a_metadata_csv, b_prefix, b_metadata_csv, new_name)
 # write_balanced_subset_from_dataset('pmemo', '../data/pmemo_features_and_ground_truth.csv')
 # write_balanced_subset_from_dataset('pmemo_agg', '../data/pmemo_agg_features_and_ground_truth.csv')
 #
-# write_balanced_subset_from_dataset('pmdeamo', '../data/pmdeamo_features_and_ground_truth.csv')
+# write_balanced_subset_from_dataset('pmdeamo', '../data/pmdeamo/pmdeamo_features_and_ground_truth.csv')
 # write_balanced_subset_from_dataset('pmdeamo_agg', '../data/pmdeamo_agg_features_and_ground_truth.csv')
 
+# write_separate_features_and_annotations_csv_from_combined_dataset('deam', '../data/deam/deam_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('deam_agg', '../data/deam/deam_agg_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_deam', '../data/deam/bal_deam_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_deam_agg', '../data/deam/bal_deam_agg_features_and_ground_truth.csv')
+
+# write_separate_features_and_annotations_csv_from_combined_dataset('pmemo', '../data/pmemo/pmemo_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('pmemo_agg', '../data/pmemo/pmemo_agg_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmemo', '../data/pmemo/bal_pmemo_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmemo_agg', '../data/pmemo/bal_pmemo_agg_features_and_ground_truth.csv')
+
 # write_separate_features_and_annotations_csv_from_combined_dataset('pmdeamo_agg', '../data/pmdeamo/pmdeamo_agg_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmdeamo', '../data/pmdeamo/bal_pmdeamo_features_and_ground_truth.csv')
 # write_separate_features_and_annotations_csv_from_combined_dataset('bal_pmdeamo_agg', '../data/pmdeamo/bal_pmdeamo_agg_features_and_ground_truth.csv')
-#write_separate_features_and_annotations_csv_from_combined_dataset('minideam_agg', '../data/minideam/minideam_agg_features_and_ground_truth.csv')
+
+# write_separate_features_and_annotations_csv_from_combined_dataset('minideam', '../data/minideam/minideam_librosa_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('minideam_agg', '../data/minideam/minideam_agg_features_and_ground_truth.csv')
+
+# write_separate_features_and_annotations_csv_from_combined_dataset('dixon', '../data/dixon/dixon_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('dixon_agg', '../data/dixon/dixon_agg_features_and_ground_truth.csv')
+# write_separate_features_and_annotations_csv_from_combined_dataset('bal_dixon', '../data/dixon/bal_dixon_features_and_ground_truth.csv')
