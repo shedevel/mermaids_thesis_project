@@ -87,13 +87,13 @@ def replication_experiment(dataset_names):
                 rmse_mean, rmse_std, r2_mean, r2_std = cross_val_regression(features, targets, initial_scaling,
                                                                             initial_n_comp, initial_w, REGS[reg])
                 rmse_string = dim + delim + name + delim + data['extraction'] + delim + initial_scaling + delim + str(
-                    initial_n_comp) + delim + str(initial_w) + delim + reg + delim + 'rmse' + delim + '{:.3f}'.format(
+                    initial_n_comp) + delim + str(initial_w) + delim + reg + delim + 'RMSE' + delim + '{:.3f}'.format(
                     rmse_mean) + delim + '{:.3f}'.format(rmse_std) + delim + date_str
                 print(rmse_string)
                 replication.append(rmse_string + '\n')
 
                 r2_string = dim + delim + name + delim + data['extraction'] + delim + initial_scaling + delim + str(
-                    initial_n_comp) + delim + str(initial_w) + delim + reg + delim + 'r2' + delim + '{:.2f}'.format(
+                    initial_n_comp) + delim + str(initial_w) + delim + reg + delim + 'R2' + delim + '{:.2f}'.format(
                     r2_mean) + delim + '{:.3f}'.format(r2_std) + delim + date_str
                 print(r2_string)
                 replication.append(r2_string + '\n')
@@ -191,13 +191,13 @@ def baseline_regression(dataset_names):
                                                                             REGS[reg_name])
 
                 rmse_string = ','.join((dim, name, data['extraction'], chosen_scaling, str(chosen_n_comp),
-                                        str(chosen_w),reg_name, 'rmse', '{:.3f}'.format(rmse_mean),
+                                        str(chosen_w),reg_name, 'RMSE', '{:.3f}'.format(rmse_mean),
                                         '{:.3f}'.format(rmse_std), date_str))
                 print(rmse_string)
                 baseline.append(rmse_string + '\n')
 
                 r2_string = ','.join((dim, name, data['extraction'], chosen_scaling, str(chosen_n_comp), str(chosen_w),
-                                      reg_name, 'r2', '{:.2f}'.format(r2_mean), '{:.3f}'.format(r2_std), date_str))
+                                      reg_name, 'R2', '{:.2f}'.format(r2_mean), '{:.3f}'.format(r2_std), date_str))
                 print(r2_string)
                 baseline.append(r2_string + '\n')
 
@@ -212,7 +212,7 @@ def baseline_classification(dataset_names):
     baseline = list()
     for name in dataset_names:
         data = DATASETS[name]
-        features, targets = prepare_dataset(data['feat_csv'], data['anno_csv'], ground_truth_cols_dict['label'])
+        features, targets = prepare_dataset(data['feat_csv'], data['anno_csv'], ground_truth_cols_dict['labels'])
 
         for clf in CLFS:
             mean_acc, mean_std = cross_val_classification(features, targets, chosen_scaling, chosen_n_comp, chosen_w,
@@ -377,7 +377,7 @@ def dim_to_cat_transfer_experiment(dim_data, cat_data):
 
         truth_and_prediction_df = pd.DataFrame(index=test['rows'])
         truth_and_prediction_df['dataset'] = test['name']
-        truth_and_prediction_df['train_set'] = train['name']
+        truth_and_prediction_df['train'] = train['name']
         truth_and_prediction_df['scaling'] = chosen_scaling
         truth_and_prediction_df['pca_val'] = chosen_n_comp
         truth_and_prediction_df = truth_and_prediction_df.join(
@@ -421,7 +421,7 @@ def combine_annotations_and_predicted_vals(dimension, ids_list, ground_truth_lis
 
 # returns dataframe for writing results to csv for further investigation
 def combine_labels_and_VA_predictions(rows, labels, pred_valence, pred_arousal):
-    labels_series = pd.Series(labels, index=rows, name='labels')
+    labels_series = pd.Series(labels, index=rows, name='label')
     valence_series = pd.Series(pred_valence, index=rows, name='pred_valence')
     arousal_series = pd.Series(pred_arousal, index=rows, name='pred_arousal')
     combined_df = labels_series.to_frame().join(valence_series.to_frame().join(arousal_series.to_frame()))
@@ -628,139 +628,76 @@ DATASETS = {
 
 # overall variables to edit when testing/experimenting
 write_to_file = True
-write_predictions = False
+write_predictions = True
 results_dir = '../data/results/'
 date_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
 print('*** REPLICATION ***')
 # replication parameters based on original pmemo researchers factors
 initial_scaling = 'standard'
-initial_n_comp = 'N/A'
-initial_w = 'N/A'
+initial_n_comp = None
+initial_w = False
 
 # replication used for code verification
 replication_main = replication_experiment(['pmemo_o'])
 
 # feature extraction comparison (openSMILE and libROSA) with same settings as replication experiment
-# feature_ext_comparison = replication_experiment(['pmemo', 'deam_o', 'deam'])
+feature_ext_comparison = replication_experiment(['pmemo', 'deam_o', 'deam'])
 
 print('*** SCALING AND REDUCTION ***')
-# scale_reduce_main_c = scaling_and_reduction_comp_experiment(['pmemo', 'deam', 'dixon'])
-# scale_reduce_main_agg_c = scaling_and_reduction_comp_experiment(['pmemo_agg', 'deam_agg', 'dixon_agg'])
-# scale_reduce_main_e = scaling_and_reduction_exp_var_experiment(['pmemo', 'deam', 'dixon'])
+scale_reduce_main_c = scaling_and_reduction_comp_experiment(['pmemo', 'deam', 'dixon'])
+scale_reduce_bal_c = scaling_and_reduction_comp_experiment(['bal_pmemo', 'bal_deam'])
+scale_and_reduce_big_c = scaling_and_reduction_comp_experiment(['pmdeamo', 'bal_pmdeamo'])
 
-# scale_reduce_bal_c = scaling_and_reduction_comp_experiment(['bal_pmemo', 'bal_deam'])
-# scale_reduce_bal_agg_c = scaling_and_reduction_comp_experiment(['bal_pmemo_agg', 'bal_deam_agg'])
-# scale_reduce_bal_e = scaling_and_reduction_exp_var_experiment(['bal_pmemo', 'bal_deam'])
-
-# scale_and_reduce_big_c = scaling_and_reduction_comp_experiment(['pmdeamo', 'bal_pmdeamo'])
-# scale_and_reduce_big_agg_c = scaling_and_reduction_comp_experiment(['pmdeamo_agg', 'bal_pmdeamo_agg'])
-# scale_and_reduce_big_e = scaling_and_reduction_exp_var_experiment(['pmdeamo', 'bal_pmdeamo'])
-
-print('*** NARROWING DOWN PARAMETERS ***')
+print('*** NARROWING DOWN STEP PARAMETERS ***')
 # based on experiments with polynomial kernel and degree, we fix degree to 1 for the remainder of experiments
 REGS['SVRpol'] = SVR(kernel='poly', gamma='scale', degree=1)
 CLFS['SVMpol'] = SVC(kernel='poly', gamma='scale', degree=1, decision_function_shape='ovo')
 
-# scales = ['minmax', 'standard', 'robust']
-# comps = [None]
-# chosen_w = True
-# chosen_regs = list(REGS.keys())
-# for scale in scales:
-#     for comp in comps:
-#         chosen_scaling = scale
-#         chosen_n_comp = comp
-#
-#         baseline_main = baseline_regression(['pmemo', 'deam'])
+scales = ['standard', 'robust']
+comps = [None, 1, 2, 3, 4, 5, 10, 25, 50]
+chosen_w = True
+chosen_regs = list(REGS.keys())
+for scale in scales:
+    for comp in comps:
+        chosen_scaling = scale
+        chosen_n_comp = comp
+        baseline_main = baseline_regression(['pmemo', 'deam'])
 
 # ************************************************************************************
 
-# print('*** BASELINE & TRANSFER | DIMENSIONAL TO DIMENSIONAL ***')
-# scales = ['standard', 'robust']
-# comps = [1, 2, 3, 4, 5, 10, 25, 50, 100]
-# chosen_w = True
-# chosen_regs = ['Ridge', 'SVRrbf', 'SVRlin']
-#
-# for scale in scales:
-#     for comp in comps:
-#         chosen_scaling = scale
-#         chosen_n_comp = comp
-#
-#         print('\nMAIN DATASETS ')
-#         # main_baseline = baseline_regression(['pmemo', 'deam'])
-#
-#         pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo, deam)
-#         deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
-#
-#         print('\nEQUAL-SIZED DATASETS')
-#         minideam_baseline = baseline_regression(['minideam'])
-#
-#         pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo, minideam)
-#         minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam, pmemo)
-#
-#         print('\n EMOTION-BALANCED DATASETS')
-#         baseline_bal = baseline_regression(['bal_pmemo', 'bal_deam'])
-#
-#         bal_pmemo_to_deam = dim_to_dim_transfer_experiment(bal_pmemo, deam)
-#         bal_deam_to_pmemo = dim_to_dim_transfer_experiment(bal_deam, pmemo)
-#
-#         print('\n*** PREDICT VA VALUES ON CATEGORICAL DATASET ***')
-#         # predict VA values on categorical dataset by fitting scaler, pca and regressor to a dimensional dataset
-#
-#         print('\nMAIN DATASETS')
-#         cat_baseline = baseline_classification(['dixon'])
-#         pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo, dixon)
-#         deam_to_dixon = dim_to_cat_transfer_experiment(deam, dixon)
-#
-#         print('\nEMOTION-BALANCED DATASETS')
-#         bal_pmemo_to_dixon = dim_to_cat_transfer_experiment(bal_pmemo, dixon)
-#         bal_deam_to_dixon = dim_to_cat_transfer_experiment(bal_deam, dixon)
-#
-#         print('\nBIG DATASET')
-#         # pmemo and deam combined into one bigger dataset
-#         pmdeamo_baseline = baseline_regression(['pmdeamo'])
-#         pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo, dixon)
-#
-#         # balanced big dataset
-#         pmdeamo_bal_baseline = baseline_regression(['bal_pmdeamo'])
-#         bal_pmdeamo_to_dixon = dim_to_cat_transfer_experiment(bal_pmdeamo, dixon)
+print('*** BASELINE & TRANSFER | DIMENSIONAL TO DIMENSIONAL ***')
+chosen_scaling = 'standard'
+chosen_n_comp = 25
+chosen_regs = ['Ridge', 'SVRrbf', 'SVRlin']
 
-        # # AGG FEATURE SET
-        # print('\nMAIN DATASETS ')
-        # main_baseline = baseline_regression(['pmemo_agg', 'deam_agg'])
-        #
-        # pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo_agg, deam_agg)
-        # deam_to_pmemo = dim_to_dim_transfer_experiment(deam_agg, pmemo_agg)
-        #
-        # print('\nEQUAL-SIZED DATASETS')
-        # minideam_baseline = baseline_regression(['minideam_agg'])
-        #
-        # pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo_agg, minideam_agg)
-        # minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam_agg, pmemo_agg)
-        #
-        # print('\n EMOTION-BALANCED DATASETS')
-        # baseline_bal = baseline_regression(['bal_pmemo_agg', 'bal_deam_agg'])
-        #
-        # bal_pmemo_to_deam = dim_to_dim_transfer_experiment(bal_pmemo_agg, deam_agg)
-        # bal_deam_to_pmemo = dim_to_dim_transfer_experiment(bal_deam_agg, pmemo_agg)
-        #
-        # print('\n*** PREDICT VA VALUES ON CATEGORICAL DATASET ***')
-        # # predict VA values on categorical dataset by fitting scaler, pca and regressor to a dimensional dataset
-        #
-        # print('\nMAIN DATASETS')
-        # cat_baseline = baseline_classification(['dixon_agg'])
-        # pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo_agg, dixon_agg)
-        # deam_to_dixon = dim_to_cat_transfer_experiment(deam_agg, dixon_agg)
-        #
-        # print('\nEMOTION-BALANCED DATASETS')
-        # bal_pmemo_to_dixon = dim_to_cat_transfer_experiment(bal_pmemo_agg, dixon_agg)
-        # bal_deam_to_dixon = dim_to_cat_transfer_experiment(bal_deam_agg, dixon_agg)
-        #
-        # print('\nBIG DATASET')
-        # # pmemo and deam combined into one bigger dataset
-        # pmdeamo_baseline = baseline_regression(['pmdeamo_agg'])
-        # pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo_agg, dixon_agg)
-        #
-        # # balanced big dataset
-        # pmdeamo_bal_baseline = baseline_regression(['bal_pmdeamo_agg'])
-        # bal_pmdeamo_to_dixon = dim_to_cat_transfer_experiment(bal_pmdeamo_agg, dixon_agg)
+print('\nMAIN DATASETS ')
+main_baseline = baseline_regression(['pmemo', 'deam'])
+pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo, deam)
+deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
+
+print('\nEQUAL-SIZED DATASETS')
+minideam_baseline = baseline_regression(['minideam'])
+
+pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo, minideam)
+minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam, pmemo)
+
+print('\n*** PREDICT VA VALUES ON CATEGORICAL DATASET ***')
+# predict VA values on categorical dataset by fitting scaler, pca and regressor to a dimensional dataset
+print('\nMAIN DATASETS')
+cat_baseline = baseline_classification(['dixon'])
+pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo, dixon)
+deam_to_dixon = dim_to_cat_transfer_experiment(deam, dixon)
+
+print('\nEMOTION-BALANCED DATASETS')
+bal_pmemo_to_dixon = dim_to_cat_transfer_experiment(bal_pmemo, dixon)
+bal_deam_to_dixon = dim_to_cat_transfer_experiment(bal_deam, dixon)
+
+print('\nBIG DATASET')
+# pmemo and deam combined into one bigger dataset
+pmdeamo_baseline = baseline_regression(['pmdeamo'])
+pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo, dixon)
+
+# balanced big dataset
+pmdeamo_bal_baseline = baseline_regression(['bal_pmdeamo'])
+bal_pmdeamo_to_dixon = dim_to_cat_transfer_experiment(bal_pmdeamo, dixon)

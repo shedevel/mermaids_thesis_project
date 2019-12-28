@@ -106,6 +106,13 @@ def extract_full_features(read_from: str, write_to_csv: bool, write_to: str, sav
             sr = 22050
             y = librosa.core.resample(y=y, orig_sr=orig_sr, target_sr=sr)
 
+            if save_images:
+                plt.figure(figsize=(14, 5))
+                librosa.display.waveplot(y, sr=sr)
+                plt.title('Waveplot')
+                plt.tight_layout()
+                plt.savefig('../data/images/' + song_id + '_waveplot.png')
+
             tempo, beats = librosa.beat.beat_track(y, sr)  # high level tempo features
             feature_set_df.loc[song_id, 'tempo'] = tempo
             feature_set_df.loc[song_id, 'beats_total'] = sum(beats)
@@ -245,3 +252,4 @@ def mean_and_stddev_on_multidimensional_feature(feature_name, features):
         agg_features[feature_name + '_' + str(i + 1) + '_std'] = np.std(features[i])
 
     return agg_features
+

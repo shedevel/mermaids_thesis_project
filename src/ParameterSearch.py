@@ -1,5 +1,4 @@
 import pandas as pd
-from math import sqrt
 from sklearn.dummy import DummyRegressor
 from sklearn.linear_model import Lasso, ElasticNet, Ridge
 from sklearn.svm import SVR
@@ -60,7 +59,7 @@ REGS = {
 pmemo = {
     'name': 'pmemo',
     'extraction': 'librosa',
-    'feat_csv': '../data/pmemo/pmemo_full_features_librosa.csv',
+    'feat_csv': '../data/pmemo/pmemo_features_librosa.csv',
     'anno_csv': '../data/pmemo/pmemo_annotations.csv'
 }
 pmemo_agg = {
@@ -73,7 +72,7 @@ pmemo_agg = {
 deam = {
     'name': 'deam',
     'extraction': 'librosa',
-    'feat_csv': '../data/deam/deam_full_features_librosa.csv',
+    'feat_csv': '../data/deam/deam_features_librosa.csv',
     'anno_csv': '../data/deam/deam_annotations.csv'
 }
 deam_agg = {
@@ -97,7 +96,7 @@ SCALERS = {
 dimensions = ['valence', 'arousal']
 
 w = True
-comps = [3, 25]
+comps = [None, 5, 25, 50]
 reg_name = 'SVRrbf'
 parameters = {'epsilon': [0.0001, 0.001, 0.01, 0.1], 'C': [0.1, 1, 10, 100, 1000]}
 
