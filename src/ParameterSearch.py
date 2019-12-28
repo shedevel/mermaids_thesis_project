@@ -9,6 +9,10 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.decomposition import PCA
 
+''' 
+unfinished code towards doing hyper-parameter search for some of the algorithms 
+'''
+
 
 # join features and annotations into one dataframe
 def _combine_dataset(features_csv_str, annotations_csv_str):
