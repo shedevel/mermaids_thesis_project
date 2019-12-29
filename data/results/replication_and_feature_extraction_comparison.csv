@@ -1,4 +1,4 @@
-dimension,dataset,extraction,scaling,pca_comp,whiten,model,metric,score,std,date
+Dimension,Dataset,Extraction,Scaling,PCA_comp,Whiten,Model,Metric,Score,Std,Date
 valence,pmemo_hz,opensmile,standard,N/A,N/A,Lasso,rmse,0.162,,2019-06-26_00:00:00
 valence,pmemo_hz,opensmile,standard,N/A,N/A,ElaNet,rmse,0.162,,2019-06-26_00:00:00
 valence,pmemo_hz,opensmile,standard,N/A,N/A,Ridge,rmse,0.163,,2019-06-26_00:00:00

@@ -1,4 +1,4 @@
-dimension,train,test,scaling,pca_comp,whiten,model,metric,score,date
+Dimension,Train,Test,Scaling,PCA_comp,Whiten,Model,Metric,Score,Date
 valence,pmemo,deam,standard,1,True,Ridge,rmse,0.135,2019-12-21_09-57-02
 valence,pmemo,deam,standard,1,True,Ridge,r2,0.15,2019-12-21_09-57-02
 arousal,pmemo,deam,standard,1,True,Ridge,rmse,0.166,2019-12-21_09-57-02
