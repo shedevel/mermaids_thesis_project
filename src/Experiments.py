@@ -628,7 +628,7 @@ DATASETS = {
 
 # overall variables to edit when testing/experimenting
 write_to_file = False
-write_predictions = True
+write_predictions = False
 results_dir = '../data/results/'
 date_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
