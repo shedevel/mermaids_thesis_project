@@ -11,7 +11,8 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import r2_score
 
 ''' 
-unfinished code towards doing hyper-parameter search for some of the algorithms 
+unfinished code towards doing hyper-parameter search for some of the algorithms, contains duplicate
+code from Experiments.py regarding preparation of datasets to keep every file as stand-alone
 '''
 
 
