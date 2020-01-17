@@ -104,7 +104,7 @@ def replication_experiment(dataset_names):
     return replication
 
 
-# investigating the effect scaling and pca combinations when given explained variance ratio as parameter
+# investigating the effect scaling and pca combinations when given explained variance ratio as parameter to PCA
 def scaling_and_reduction_exp_var_experiment(dataset_names):
     scaling_and_reduction = list()
     for name in dataset_names:
@@ -133,7 +133,7 @@ def scaling_and_reduction_exp_var_experiment(dataset_names):
     return scaling_and_reduction
 
 
-# investigating the effect scaling and pca combinations when given n components as parameter
+# investigating the effect scaling and pca combinations when given n components as parameter to PCA
 def scaling_and_reduction_comp_experiment(dataset_names):
     scaling_and_reduction = list()
     for name in dataset_names:
@@ -167,6 +167,11 @@ def scaling_and_reduction_comp_experiment(dataset_names):
                 row_string = ','.join(
                     (name, data['extraction'], scaler_name, '{:.2f}'.format(exp_var), str(pca_val), date_str))
                 scaling_and_reduction.append(row_string + '\n')
+
+                if pca_val == 25:
+                    comp_pd = pd.DataFrame(pca.components_)
+                    comp_pd['exp_var_ratio'] = pca.explained_variance_ratio_
+                    comp_pd.to_csv('../data/results/' + name + '_' + scaler_name + '_' + str(pca_val) + '.csv')
 
                 if write_to_file:
                     with open(results_dir + 'scaling_and_reduction.csv', 'a') as output:
@@ -212,7 +217,7 @@ def baseline_classification(dataset_names):
     baseline = list()
     for name in dataset_names:
         data = DATASETS[name]
-        features, targets = prepare_dataset(data['feat_csv'], data['anno_csv'], ground_truth_cols_dict['labels'])
+        features, targets = prepare_dataset(data['feat_csv'], data['anno_csv'], ground_truth_cols_dict['label'])
 
         for clf in CLFS:
             mean_acc, mean_std = cross_val_classification(features, targets, chosen_scaling, chosen_n_comp, chosen_w,
@@ -245,7 +250,7 @@ def prepare_categorical_dataset_for_transfer(data_dict):
     feat_nda, lab_nda = _split_features_and_cat_annotations(data_df)
     rows_list, cols_list = _get_row_and_column_headers(data_df)
 
-    return {'name': data_dict['name'], 'features': feat_nda, 'labels': lab_nda,
+    return {'name': data_dict['name'], 'features': feat_nda, 'label': lab_nda,
             'cols': cols_list, 'rows': rows_list}
 
 
@@ -381,10 +386,10 @@ def dim_to_cat_transfer_experiment(dim_data, cat_data):
         truth_and_prediction_df['scaling'] = chosen_scaling
         truth_and_prediction_df['pca_val'] = chosen_n_comp
         truth_and_prediction_df = truth_and_prediction_df.join(
-            combine_labels_and_VA_predictions(test['rows'], test['labels'], pred_vals['valence'], pred_vals['arousal']))
+            combine_labels_and_VA_predictions(test['rows'], test['label'], pred_vals['valence'], pred_vals['arousal']))
 
         # calculate accuracy based on true labels and predicted VA quadrant
-        accuracy = accuracy_score(test['labels'], truth_and_prediction_df['pred_quadrant'])
+        accuracy = accuracy_score(test['label'], truth_and_prediction_df['pred_quadrant'])
 
         row_string = 'categorical' + delim + train['name'] + delim + test[
             'name'] + delim + chosen_scaling + delim + str(
@@ -482,6 +487,7 @@ pmemo_o = {
     'feat_csv': '../data/pmemo/pmemo_features_opensmile.csv',
     'anno_csv': '../data/pmemo/pmemo_annotations.csv'
 }
+
 pmemo = {
     'name': 'pmemo',
     'extraction': 'librosa',
@@ -514,6 +520,7 @@ deam_o = {
     'feat_csv': '../data/deam/deam_features_opensmile.csv',
     'anno_csv': '../data/deam/deam_annotations.csv'
 }
+
 deam = {
     'name': 'deam',
     'extraction': 'librosa',
@@ -533,7 +540,6 @@ bal_deam = {
     'feat_csv': '../data/deam/bal_deam_features_librosa.csv',
     'anno_csv': '../data/deam/bal_deam_annotations.csv'
 }
-
 bal_deam_agg = {
     'name': 'bal_deam_agg',
     'extraction': 'librosa',
@@ -560,17 +566,18 @@ dixon = {
     'feat_csv': '../data/dixon/dixon_features_librosa.csv',
     'anno_csv': '../data/dixon/dixon_labels.csv'
 }
-bal_dixon = {
-    'name': 'bal_dixon',
-    'extraction': 'librosa',
-    'feat_csv': '../data/dixon/bal_dixon_features_librosa.csv',
-    'anno_csv': '../data/dixon/bal_dixon_labels.csv'
-}
 dixon_agg = {
     'name': 'dixon_agg',
     'extraction': 'librosa',
     'feat_csv': '../data/dixon/agg/dixon_agg_features_librosa.csv',
     'anno_csv': '../data/dixon/agg/dixon_labels.csv'
+}
+
+bal_dixon = {
+    'name': 'bal_dixon',
+    'extraction': 'librosa',
+    'feat_csv': '../data/dixon/bal_dixon_features_librosa.csv',
+    'anno_csv': '../data/dixon/bal_dixon_labels.csv'
 }
 
 pmdeamo = {
@@ -654,9 +661,13 @@ print('*** NARROWING DOWN STEP PARAMETERS ***')
 # REGS['SVRpol'] = SVR(kernel='poly', gamma='scale', degree=1)
 # CLFS['SVMpol'] = SVC(kernel='poly', gamma='scale', degree=1, decision_function_shape='ovo')
 
+# excluding minmax-scaling on account of high sensitivity to outliers
 # scales = ['standard', 'robust']
+
+# choosing some select values for n-components
 # comps = [None, 1, 2, 3, 4, 5, 10, 25, 50]
 # chosen_w = True
+
 # chosen_regs = list(REGS.keys())
 # for scale in scales:
 #     for comp in comps:
@@ -673,38 +684,32 @@ chosen_w = True
 chosen_regs = ['Ridge', 'SVRrbf', 'SVRlin']
 
 print('\nMAIN DATASETS ')
-# main_baseline = baseline_regression(['pmemo', 'deam'])
-
-# pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo, deam)
-# deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
+main_baseline = baseline_regression(['pmemo', 'deam'])
+pmemo_to_deam = dim_to_dim_transfer_experiment(pmemo, deam)
+deam_to_pmemo = dim_to_dim_transfer_experiment(deam, pmemo)
 
 print('\nEQUAL-SIZED DATASETS')
-# minideam_baseline = baseline_regression(['minideam'])
-
-# pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo, minideam)
-# minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam, pmemo)
+minideam_baseline = baseline_regression(['minideam'])
+pmemo_to_minideam = dim_to_dim_transfer_experiment(pmemo, minideam)
+minideam_to_pmemo = dim_to_dim_transfer_experiment(minideam, pmemo)
 
 print('\n*** PREDICT VA VALUES ON CATEGORICAL DATASET ***')
 # predict VA values on categorical dataset by fitting scaler, pca and regressor to a dimensional dataset
 print('\nMAIN DATASETS')
-# cat_baseline = baseline_classification(['dixon'])
-#
-# pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo, dixon)
-# deam_to_dixon = dim_to_cat_transfer_experiment(deam, dixon)
+cat_baseline = baseline_classification(['dixon'])
+pmemo_to_dixon = dim_to_cat_transfer_experiment(pmemo, dixon)
+deam_to_dixon = dim_to_cat_transfer_experiment(deam, dixon)
 
 print('\nEMOTION-BALANCED DATASETS')
-# bal_baseline = baseline_regression(['bal_pmemo', 'bal_deam'])
-
-# bal_pmemo_to_dixon = dim_to_cat_transfer_experiment(bal_pmemo, dixon)
-# bal_deam_to_dixon = dim_to_cat_transfer_experiment(bal_deam, dixon)
+bal_baseline = baseline_regression(['bal_pmemo', 'bal_deam'])
+bal_pmemo_to_dixon = dim_to_cat_transfer_experiment(bal_pmemo, dixon)
+bal_deam_to_dixon = dim_to_cat_transfer_experiment(bal_deam, dixon)
 
 print('\nBIG DATASET')
 # pmemo and deam combined into one bigger dataset
-# pmdeamo_baseline = baseline_regression(['pmdeamo'])
-
-# pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo, dixon)
+pmdeamo_baseline = baseline_regression(['pmdeamo'])
+pmdeamo_to_dixon = dim_to_cat_transfer_experiment(pmdeamo, dixon)
 
 # balanced big dataset
-# pmdeamo_bal_baseline = baseline_regression(['bal_pmdeamo'])
-
-# bal_pmdeamo_to_dixon = dim_to_cat_transfer_experiment(bal_pmdeamo, dixon)
+pmdeamo_bal_baseline = baseline_regression(['bal_pmdeamo'])
+bal_pmdeamo_to_dixon = dim_to_cat_transfer_experiment(bal_pmdeamo, dixon)

@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.decomposition import PCA
+from sklearn.metrics import r2_score
 
 ''' 
 unfinished code towards doing hyper-parameter search for some of the algorithms 
@@ -26,14 +27,14 @@ def _combine_dataset(features_csv_str, annotations_csv_str):
 def _split_features_and_dim_annotations(dataset_df):
     valence_nda = dataset_df['valence'].values
     arousal_nda = dataset_df['arousal'].values
-    features_nda = dataset_df[[c for c in dataset_df.columns if c not in ['valence', 'arousal', 'label']]].values
+    features_nda = dataset_df[[c for c in dataset_df.columns if c not in ['valence', 'arousal', 'quadrant']]].values
     return features_nda, valence_nda, arousal_nda
 
 
 # takes a dataframe and returns two lists
 def _get_row_and_column_headers(dataset_df):
     rows = dataset_df.index.values.tolist()
-    cols = dataset_df[[c for c in dataset_df.columns if c not in ['valence', 'arousal', 'label']]].columns.tolist()
+    cols = dataset_df[[c for c in dataset_df.columns if c not in ['valence', 'arousal', 'quadrant']]].columns.tolist()
     return rows, cols
 
 
@@ -87,8 +88,7 @@ deam_agg = {
 }
 
 datasets = {
-    'pmemo_agg': pmemo_agg,
-    'deam_agg': deam_agg
+    'deam': deam
 }
 
 SCALERS = {
@@ -108,7 +108,7 @@ for name in datasets:
     for sca in SCALERS:
         for dim in dimensions:
             for n_comp in comps:
-                print('\n' + dim + ' | ' + name + ' | ' + 'PCA: n_comp = ' + str(n_comp) + 'whiten = ' + str(w))
+                print('\n' + dim + ' | ' + name + ' | ' + 'PCA: n_comp = ' + str(n_comp) + ' | Whiten = ' + str(w))
                 print(str(sca))
 
                 data_dict = prepare_dimensional_dataset_for_transfer(datasets[name])
@@ -117,16 +117,17 @@ for name in datasets:
                 features = scaler.fit_transform(data_dict['features'])
                 targets = data_dict[dim]
 
-                feat_train, feat_test, targ_train, targ_test = train_test_split(features, targets,
-                                                                                shuffle=True, test_size=.4, random_state=42)
+                train_feat, test_feat, train_target, test_target = train_test_split(features, targets,
+                                                                                    shuffle=True, test_size=.4,
+                                                                                    random_state=42)
 
                 reg = REGS[reg_name]
 
                 gs = GridSearchCV(estimator=reg, param_grid=parameters, cv=5, verbose=1)
 
                 pca = PCA(n_components=n_comp, whiten=w, svd_solver='full')
-                pc_train = pca.fit_transform(feat_train)
-                gs.fit(X=pc_train, y=targ_train)
+                train_pc = pca.fit_transform(train_feat)
+                gs.fit(X=train_pc, y=train_target)
 
                 print('Best params:')
                 print(gs.best_params_)
@@ -134,10 +135,22 @@ for name in datasets:
                 print('Best score:')
                 print(gs.best_score_)
 
+                print('Testing best model on test-data')
+                best_model = gs.best_estimator_
+                best_model.fit(train_pc, train_target)
+
+                test_pc = pca.transform(test_feat)
+                test_pred = best_model.predict(test_pc)
+
+                r2_val = r2_score(test_target, test_pred)
+                print('Test R2: ' + str(r2_val))
+
                 delim = ','
                 row_string = delim.join((dim, name, sca, str(n_comp), str(w), reg_name, 'r2', str(gs.best_score_)))
                 for param in gs.best_params_:
                     row_string += delim + delim.join((param, str(gs.best_params_[param])))
+
+                row_string += delim + str(r2_val)
 
                 with open('../data/results/gridsearch_' + reg_name + '.csv', 'a') as output:
                     output.write(row_string + '\n')
