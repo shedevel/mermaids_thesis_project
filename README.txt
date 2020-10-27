@@ -25,7 +25,4 @@ Experiments.py
 - contains the applied code for conducting experiments, both preliminary, baseline and
 cross-dataset experiments
 
-ParameterSearch.py
-- not part of submitted code, but a work in progress to find optimal parameters for some selected algorithms to further investigation
-
 ---------------------------------------
