@@ -1,5 +1,4 @@
 Thesis Project: Cross-Dataset Music Emotion Recognition
-by Sabina Hult & Line Bay Kreiberg
 
 ---------------------------------------
 
